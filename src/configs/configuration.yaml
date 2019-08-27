@@ -1,0 +1,22 @@
+port: 3000
+
+database:
+    postgres:
+        host: 127.0.0.1
+        port: 5432
+        user: pgadmin
+        password: whatPass?
+        database: food_ordering
+        charset: utf8mb4
+        debug: false
+    redis:
+        host: 127.0.0.1
+        port: 6379
+        password: whatPass?
+        db: "0"
+        prefix: dev:foodordering
+
+session:
+    password: whatPass?
+    issuer: FoodOrdering
+    defaultExpireTime: 15 # minutes

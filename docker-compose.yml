@@ -1,0 +1,26 @@
+version: '2.1'
+services:
+    postgres:
+        image: postgres:9.6.2-alpine
+        ports:
+            - 5432:5432
+        networks:
+            - internal
+        environment:
+            - POSTGRES_PASSWORD=whatPass?
+            - POSTGRES_USER=pgadmin
+            - POSTGRES_DB=food_ordering
+        volumes:
+            # - ${PWD}/local/postgres:/var/lib/postgresql/data
+            - ${PWD}/docker/development/postgres/initdb.d:/docker-entrypoint-initdb.d
+    redis:
+        image: redis:3.2.8-alpine
+        command: redis-server --requirepass whatPass?
+        ports:
+            - 6379:6379
+        networks:
+            - internal
+        volumes:
+            - ${PWD}/local/redis:/data
+networks:
+    internal:
