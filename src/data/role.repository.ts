@@ -10,4 +10,4 @@ export class RoleRepository extends BaseRepository<RoleDto, RoleModel> {
         });
     }
 }
-export  default RoleRepository;
+export default RoleRepository;

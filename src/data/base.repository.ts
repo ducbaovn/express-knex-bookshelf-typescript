@@ -16,7 +16,7 @@ export class BaseRepository<T extends BaseDto<T>, X extends BaseModel> {
         }) {
     }
 
-    public update(data: X, t?: Transaction): Bluebird<T> {
+    public update(data: X, t?: Transaction): Bluebird<X> {
         if (data == null && data.id != null && data.id !== "") {
             return Bluebird.reject(new ExceptionModel(
                 ErrorCode.RESOURCE.MISSING_REQUIRED_FIELDS.CODE,
@@ -25,21 +25,29 @@ export class BaseRepository<T extends BaseDto<T>, X extends BaseModel> {
                 HttpStatus.BAD_REQUEST
             ));
         }
-        let ins = this.converter.toDto(data);
-        return new this.dto({ id: ins.id }).save(ins, {
-            patch: true,
-            transacting: t
-        }).catch(err => this.handleBookshelfError(err));
+        return Bluebird.resolve(data)
+        .tap(data => {
+            let ins = this.converter.toDto(data);
+            return new this.dto({ id: ins.id }).save(ins, {
+                patch: true,
+                transacting: t
+            }).catch(err => this.handleBookshelfError(err));
+        });
     }
 
-    public insert(data: X, t?: Transaction): Bluebird<T> {
+    public insert(data: X, t?: Transaction): Bluebird<X> {
         if (data == null) {
             return Bluebird.resolve(null);
         }
         let ins = this.converter.toDto(data);
-        return new this.dto().save(ins, {
-            transacting: t
-        }).catch(err => this.handleBookshelfError(err));
+        return Bluebird.resolve(data)
+        .tap(data => {
+            return new this.dto().save(ins, {
+                transacting: t
+            })
+            .then(dto => data.id = dto.id)
+            .catch(err => this.handleBookshelfError(err));
+        });
     }
 
     private handleBookshelfError(err) {
@@ -64,21 +72,6 @@ export class BaseRepository<T extends BaseDto<T>, X extends BaseModel> {
         }
     }
 
-    /**
-     * Function insert and convert to model object with related and filters.
-     *
-     * @param data
-     * @param related
-     * @param filters
-     * @returns {Bluebird<U>}
-     */
-    public insertGet(data: X, related: (string | WithRelatedQuery)[] = [], filters: string[] = []): Bluebird<X> {
-        return this.insert(data)
-            .then(result => {
-                return this.findOne(result.id, related, filters);
-            });
-    }
-
     public forceDelete(id: string, t?: Transaction): Bluebird<boolean> {
         if (id == null) {
             return Bluebird.resolve(false);
@@ -94,57 +87,46 @@ export class BaseRepository<T extends BaseDto<T>, X extends BaseModel> {
                 return false;
             });
     }
-    public deleteLogic(id: string, t?: Transaction): Bluebird<T> {
-        if (id == null || id.length === 0) {
-            return Bluebird.reject(new ExceptionModel(
-                ErrorCode.RESOURCE.MISSING_REQUIRED_FIELDS.CODE,
-                ErrorCode.RESOURCE.MISSING_REQUIRED_FIELDS.MESSAGE,
-                false,
-                HttpStatus.BAD_REQUEST
-            ));
-        };
 
-        return this.findOne(id)
-            .then((object) => {
-                if (!object) {
-                    throw new ExceptionModel(
-                        ErrorCode.RESOURCE.NOT_FOUND.CODE,
-                        ErrorCode.RESOURCE.NOT_FOUND.MESSAGE,
-                        false,
-                        HttpStatus.BAD_REQUEST
-                    );
-                };
-                return new this.dto({ id: id }).save({ is_deleted: 1 }, {
-                    patch: true,
-                    transacting: t
-                });
+    public deleteLogic(id: string, t?: Transaction): Bluebird<T> {
+        return Bluebird.resolve()
+        .then(() => {
+            if (id == null || id.length === 0) {
+                throw new ExceptionModel(
+                    ErrorCode.RESOURCE.MISSING_REQUIRED_FIELDS.CODE,
+                    ErrorCode.RESOURCE.MISSING_REQUIRED_FIELDS.MESSAGE,
+                    false,
+                    HttpStatus.BAD_REQUEST
+                );
+            }
+            return this.findOne(id);
+        })
+        .then((object) => {
+            if (!object) {
+                throw new ExceptionModel(
+                    ErrorCode.RESOURCE.NOT_FOUND.CODE,
+                    ErrorCode.RESOURCE.NOT_FOUND.MESSAGE,
+                    false,
+                    HttpStatus.BAD_REQUEST
+                );
+            };
+            return new this.dto({ id: id }).save({ is_deleted: 1 }, {
+                patch: true,
+                transacting: t
             });
+        });
     }
 
-    /**
-     *
-     * @param callback
-     * @returns {BlueBird<any>}
-     */
     public deleteByQuery(callback: (qb: QueryBuilder) => void, t?: Transaction): Bluebird<any[]> {
         return new this.dto().query(callback).destroy({
             transacting: t
         });
     }
 
-    /**
-     *
-     * @returns {BlueBird<any>}
-     */
     public truncate(): any {
         return new this.dto().query().truncate();
     }
 
-    /**
-     *
-     * @param callback
-     * @returns {BlueBird<any>}
-     */
     public updateByQuery(callback: (qb: QueryBuilder) => void, data: any, t?: Transaction): Bluebird<T> {
         return new this.dto({}, false).query(callback).save(data, {
             method: "update",
@@ -153,7 +135,6 @@ export class BaseRepository<T extends BaseDto<T>, X extends BaseModel> {
             transacting: t
         });
     }
-
 
     public list(related: (string | WithRelatedQuery)[] = [], filters: string[] = []): Bluebird<X[]> {
         return new this.dto().query((): void => {

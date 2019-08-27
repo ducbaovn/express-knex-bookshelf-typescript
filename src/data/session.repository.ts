@@ -10,4 +10,4 @@ export class SessionRepository extends BaseRepository<SessionDto, SessionModel> 
         });
     }
 }
-export  default SessionRepository;
+export default SessionRepository;

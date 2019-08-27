@@ -1,11 +1,15 @@
+import * as Bluebird from "bluebird";
 import * as Schema from "../data/sql/schema";
-import { BaseModel, UserModel, RoleModel } from "./";
+import { BaseModel, ExceptionModel, UserModel, RoleModel } from "./";
 import { SessionDto, UserDto } from "../data/sql/models";
+import { Jwt, ErrorCode, HttpStatus, Utils } from "../libs";
+import { SessionRepository, UserRepository } from "../data";
 
 export class SessionModel extends BaseModel {
     public userId: string;
     public roleId: string;
 
+    public token: string;
     public user: UserModel;
 
     public static fromDto(dto: SessionDto, filters: string[] = []): SessionModel {
@@ -47,5 +51,68 @@ export class SessionModel extends BaseModel {
             dto[Schema.SESSIONS_TABLE_SCHEMA.FIELDS.ROLE_ID] = model.roleId;
         }
         return dto;
+    }
+
+    public static create(user: UserModel): Bluebird<SessionModel> {
+        return Bluebird.resolve(new SessionModel())
+        .then(session => {
+            session.userId = user.id;
+            session.roleId = user.roleId;
+            session.token = Jwt.encode(session);
+            session.user = user;
+            return SessionRepository.insert(session);
+        });
+    }
+
+    public static refreshToken(refreshToken: string): Bluebird<SessionModel> {
+        return SessionRepository.findOne(refreshToken, ["user"])
+        .tap(session => {
+            if (!session) {
+                throw new ExceptionModel(
+                    ErrorCode.AUTHENTICATION.AUTHENTICATION_FAIL.CODE,
+                    ErrorCode.AUTHENTICATION.AUTHENTICATION_FAIL.MESSAGE,
+                    false,
+                    HttpStatus.FORBIDDEN
+                );
+            }
+            session.token = Jwt.encode(session);
+        });
+    }
+
+    public static login(userName: string, password: string): Bluebird<SessionModel> {
+        return UserRepository.findByUserName(userName)
+        .tap(user => {
+            return Utils.compareHash(password, user.password)
+            .then(isValid => {
+                if (!isValid) {
+                    throw new ExceptionModel(
+                        ErrorCode.AUTHENTICATION.AUTHENTICATION_FAIL.CODE,
+                        ErrorCode.AUTHENTICATION.AUTHENTICATION_FAIL.MESSAGE,
+                        false,
+                        HttpStatus.BAD_REQUEST
+                    );
+                }
+            });
+        })
+        .then(user => SessionModel.create(user));
+    }
+
+    public static revokeTokenByUser(userId: string): Bluebird<any> {
+        return Bluebird.resolve()
+        .then(() => {
+            if (!userId) {
+                throw new ExceptionModel(
+                    ErrorCode.RESOURCE.MISSING_REQUIRED_FIELDS.CODE,
+                    ErrorCode.RESOURCE.MISSING_REQUIRED_FIELDS.MESSAGE,
+                    false,
+                    HttpStatus.BAD_REQUEST
+                );
+            }
+            let deleteLogic = {};
+            deleteLogic[Schema.SESSIONS_TABLE_SCHEMA.FIELDS.IS_DELETED] = true;
+            return SessionRepository.updateByQuery(q => {
+                q.where(Schema.SESSIONS_TABLE_SCHEMA.FIELDS.USER_ID, userId);
+            }, deleteLogic);
+        });
     }
 }

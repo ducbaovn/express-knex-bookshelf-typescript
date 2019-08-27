@@ -27,7 +27,8 @@ export const ErrorCode = {
         GENERIC: new Code(1100, "unknown authentication's error."),
         AUTHENTICATION_FAIL: new Code(1101, "authentication fails"),
         INVALID_AUTHORIZATION_HEADER: new Code(1103, "invalid authorization header."),
-        TOKEN_EXPIRED: new Code(1102, "token expired")
+        TOKEN_EXPIRED: new Code(1102, "token expired"),
+        USER_EXIST: new Code(1103, "user name exists")
     },
     PRIVILEGE: {
         TYPE: "Privilege",

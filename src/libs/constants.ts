@@ -18,7 +18,10 @@ export const HEADERS = {
     APP_VERSION: "app-version",
     BUILD_VERSION: "build-version",
     PASSWORD: "password",
-    API_KEY: "api-key"
+    API_KEY: "api-key",
+    TOTAL: "total",
+    OFFSET: "offset",
+    LIMIT: "limit"
 };
 
 export const PLATFORM = {

@@ -26,12 +26,14 @@ export class JsonWebToken {
         this.defaultExpireTime = opts.defaultExpireTime != null && opts.defaultExpireTime !== "" ? opts.defaultExpireTime : this.DEFAULT_EXPIRE; // 1 year
     }
 
-    public encode(payload: any, expire: number, client = this.defaultClient): string {
+    public encode(payload: any, expire?: number, client = this.defaultClient): string {
         if (payload != null) {
             let current = Date.now();
-            let expiredTime = current + this.defaultExpireTime;
+            let expiredTime;
             if (expire != null && expire > 0) {
                 expiredTime = current + expire;
+            } else {
+                expiredTime = current + this.defaultExpireTime;
             }
             return jwt.sign({
                 // Payload part
