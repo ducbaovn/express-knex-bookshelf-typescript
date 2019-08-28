@@ -103,6 +103,10 @@ export class RedisConnection {
     private createKey(...params: string[]): string {
         return params.filter(val => val != null && val !== "").join(":");
     }
+
+    public getOrderDishQueueKey() {
+        return this.createKey("OrderDishQueue");
+    }
 }
 
 export const Redis = new RedisConnection(Configuration.database != null ? Configuration.database.redis : null);

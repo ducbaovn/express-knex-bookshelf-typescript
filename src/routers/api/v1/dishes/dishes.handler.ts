@@ -1,19 +1,19 @@
 import * as Bluebird from "bluebird";
 import * as express from "express";
-import { HttpStatus, ErrorCode } from "../../../../libs";
+import { HttpStatus } from "../../../../libs";
 import { HEADERS } from "../../../../libs/constants";
-import { UserRepository } from "../../../../data";
-import { UserService, SessionService } from "../../../../interactors";
-import { SessionModel, ExceptionModel } from "../../../../models";
+import { DishRepository } from "../../../../data";
+import { DishService } from "../../../../interactors";
 
-export class UserHandler {
+export class DishHandler {
     public static create(req: express.Request, res: express.Response, next: express.NextFunction): any {
         return Bluebird.resolve()
         .then(() => {
-            let userName = req.body.userName;
-            let password = req.body.password;
-            let roleId = req.body.roleId;
-            return UserService.create(userName, password, roleId);
+            let description = req.body.description;
+            let images = req.body.images;
+            let price = req.body.price;
+            let cookingMinutes = req.body.cookingMinutes;
+            return DishService.create(description, images, price, cookingMinutes);
         })
         .then(object => {
             res.status(HttpStatus.OK);
@@ -23,7 +23,7 @@ export class UserHandler {
     }
 
     public static detail(req: express.Request, res: express.Response, next: express.NextFunction): any {
-        return UserRepository.findOne(req.params.id)
+        return DishRepository.findOne(req.params.id)
         .then(object => {
             res.status(HttpStatus.OK);
             res.json(object);
@@ -32,18 +32,14 @@ export class UserHandler {
     }
 
     public static update(req: express.Request, res: express.Response, next: express.NextFunction): any {
-        let userName = req.body.userName || null;
-        let password = req.body.password || null;
-        let roleId = req.body.roleId || null;
-        return UserService.update(req.params.id, userName, password, roleId)
-        .tap(user => {
-            if (user.password != null || user.roleId != null) {
-                return SessionService.revokeTokenByUser(user.id);
-            }
-        })
-        .tap(user => {
+        let description = req.body.description || null;
+        let images = req.body.images || null;
+        let price = req.body.price;
+        let cookingMinutes = req.body.cookingMinutes;
+        return DishService.update(req.params.id, description, images, price, cookingMinutes)
+        .tap(dish => {
             res.status(HttpStatus.OK);
-            res.json(user);
+            res.json(dish);
         })
         .catch(next);
     }
@@ -51,20 +47,9 @@ export class UserHandler {
     public static delete(req: express.Request, res: express.Response, next: express.NextFunction): any {
         return Bluebird.resolve()
         .then(() => {
-            let session: SessionModel = res.locals.session;
-            let userId = session.userId;
-            if (userId === req.params.id) {
-                throw new ExceptionModel(
-                    ErrorCode.RESOURCE.CANNOT_DELETE_YOURSELF.CODE,
-                    ErrorCode.RESOURCE.CANNOT_DELETE_YOURSELF.MESSAGE,
-                    false,
-                    HttpStatus.BAD_REQUEST
-                );
-            }
-            return UserRepository.deleteLogic(req.params.id);
+            return DishRepository.deleteLogic(req.params.id);
         })
         .then(() => {
-            SessionService.revokeTokenByUser(req.params.id);
             res.status(HttpStatus.OK);
             res.end();
         })
@@ -75,7 +60,7 @@ export class UserHandler {
         let offset = parseInt(req.query.offset, 10) || null;
         let limit = parseInt(req.query.limit, 10) || null;
         let queryParams = req.query || null;
-        return UserRepository.search(queryParams, offset, limit)
+        return DishRepository.search(queryParams, offset, limit)
         .tap(result => {
             res.header(HEADERS.TOTAL, result.total.toString(10));
             if (offset != null) {
@@ -91,5 +76,5 @@ export class UserHandler {
     }
 }
 
-export default UserHandler;
+export default DishHandler;
 

@@ -54,3 +54,9 @@ export const POSTGRES_ERROR_CODE = {
     LOCK_TIMEOUT: "55P03",
     STATEMENT_TIMEOUT: "57014"
 };
+
+export const ORDER_DISH_STATUS = {
+    NEW: "new",
+    IN_PROGRESS: "in-progress",
+    SERVED: "served"
+};

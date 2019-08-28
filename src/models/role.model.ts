@@ -3,7 +3,6 @@ import { BaseModel } from "./base.model";
 import { RoleDto } from "../data/sql/models";
 
 export class RoleModel extends BaseModel {
-    public name: string;
     public description: string;
 
     public static fromDto(dto: RoleDto, filters: string[] = []): RoleModel {

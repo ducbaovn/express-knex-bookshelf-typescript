@@ -67,9 +67,7 @@ export class UserService extends BaseService<UserModel, typeof UserRepository > 
                 .then(hash => user.password = hash);
             }
         })
-        .tap(user => {
-            return UserRepository.update(user)
-        });
+        .tap(user => UserRepository.update(user));
     }
 }
 
