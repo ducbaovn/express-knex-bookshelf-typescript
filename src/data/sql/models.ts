@@ -97,6 +97,6 @@ export class OrderDishDto extends BaseDto<OrderDishDto> {
     }
 
     public dish(): any {
-        return this.hasMany(DishDto, Schema.ORDER_DISH_TABLE_SCHEMA.FIELDS.DISH_ID);
+        return this.belongsTo(DishDto, Schema.ORDER_DISH_TABLE_SCHEMA.FIELDS.DISH_ID);
     }
 }

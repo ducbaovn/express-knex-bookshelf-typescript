@@ -39,6 +39,14 @@ export class SessionService extends BaseService<SessionModel, typeof SessionRepo
     public login(userName: string, password: string): Bluebird<SessionModel> {
         return UserRepository.findByUserName(userName)
         .tap(user => {
+            if (!user) {
+                throw new ExceptionModel(
+                    ErrorCode.AUTHENTICATION.AUTHENTICATION_FAIL.CODE,
+                    ErrorCode.AUTHENTICATION.AUTHENTICATION_FAIL.MESSAGE,
+                    false,
+                    HttpStatus.FORBIDDEN
+                );
+            }
             return Utils.compareHash(password, user.password)
             .then(isValid => {
                 if (!isValid) {

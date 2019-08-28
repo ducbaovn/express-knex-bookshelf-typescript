@@ -11,6 +11,15 @@ export class Utils {
         };
         return Bluebird.resolve().then(loop);
     }
+    public static PromiseLoopWithCatch(condition: () => boolean, action: () => Bluebird<any>): Bluebird<any> {
+        let loop = () => {
+            if (condition()) {
+                return;
+            }
+            return Bluebird.resolve(action()).then(loop);
+        };
+        return Bluebird.resolve().then(loop);
+    }
     public static hashPassword(password: string): Bluebird<string> {
         return bcrypt.hash(password, 10);
     }

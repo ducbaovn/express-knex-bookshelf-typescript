@@ -1,3 +1,4 @@
+import * as Bluebird from "bluebird";
 import { BaseModel } from "./";
 import Redis from "../data/redis/redis";
 
@@ -7,10 +8,10 @@ export class OrderDishQueue extends BaseModel {
         super();
         this.key = Redis.getOrderDishQueueKey();
     }
-    public enqueue(orderDishId: string): boolean {
-        return Redis.getClient().rpush(this.key, orderDishId);
+    public enqueue(orderDishId: string): Bluebird<boolean> {
+        return Redis.getClient().rpushAsync(this.key, orderDishId);
     }
-    public dequeue(): any  {
-        return Redis.getClient().lpop(this.key);
+    public dequeue(): Bluebird<string>  {
+        return Redis.getClient().lpopAsync(this.key);
     }
 }

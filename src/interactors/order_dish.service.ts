@@ -1,8 +1,9 @@
 import * as Bluebird from "bluebird";
+import Redis from "../data/redis/redis";
 import { BaseService } from "./base.service";
 import { OrderDishModel, OrderDishQueue, ExceptionModel } from "../models";
 import { OrderDishRepository } from "../data";
-import { ErrorCode, HttpStatus } from "../libs";
+import { ErrorCode, HttpStatus, Utils } from "../libs";
 
 export class OrderDishService extends BaseService<OrderDishModel, typeof OrderDishRepository > {
     constructor() {
@@ -38,8 +39,32 @@ export class OrderDishService extends BaseService<OrderDishModel, typeof OrderDi
 
     public dequeue(): Bluebird<OrderDishModel> {
         return Bluebird.resolve(new OrderDishQueue())
-        .then(queue => queue.dequeue())
-        .then(orderDishId => OrderDishRepository.findOne(orderDishId, ["dish"]));
+        .then(queue => {
+            let item: OrderDishModel;
+            return Bluebird.resolve(item)
+            .then(item => {
+                return Utils.PromiseLoopWithCatch(() => {
+                    return !!item;
+                }, () => {
+                    return queue.dequeue()
+                    .then(orderDishId => {
+                        if (!orderDishId) {
+                            throw new ExceptionModel(
+                                ErrorCode.RESOURCE.ORDER_DISH_QUEUE_EMPTY.CODE,
+                                ErrorCode.RESOURCE.ORDER_DISH_QUEUE_EMPTY.MESSAGE,
+                                false,
+                                HttpStatus.BAD_REQUEST
+                            );
+                        }
+                        return OrderDishRepository.findOne(orderDishId, ["dish"]);
+                    })
+                    .then(orderDish => {
+                        item = orderDish;
+                    });
+                })
+                .then(() => item);
+            });
+        });
     }
 }
 

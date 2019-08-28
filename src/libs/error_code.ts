@@ -22,7 +22,8 @@ export const ErrorCode = {
         DUPLICATE_RESOURCE: new Code(1003, "duplicate resource"),
         MISSING_REQUIRED_FIELDS: new Code(1004, "missing required fields"),
         CANNOT_DELETE_YOURSELF: new Code(1005, "cannot delete yourself"),
-        INVALID_ACCESS: new Code(1006, "invalid access.")
+        INVALID_ACCESS: new Code(1006, "invalid access."),
+        ORDER_DISH_QUEUE_EMPTY: new Code(1007, "order dish queue is empty")
     },
     AUTHENTICATION: {
         TYPE: "Authentication.",

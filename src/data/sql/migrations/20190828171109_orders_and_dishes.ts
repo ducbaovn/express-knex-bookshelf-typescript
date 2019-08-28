@@ -54,8 +54,8 @@ export const up = (knex: Knex, promise: typeof Bluebird) => {
                 .onDelete("CASCADE");
             table.string(Schema.ORDER_DISH_TABLE_SCHEMA.FIELDS.STATUS, 255).notNullable().defaultTo(ORDER_DISH_STATUS.NEW);
             table.integer(Schema.ORDER_DISH_TABLE_SCHEMA.FIELDS.QUANTITY).notNullable().defaultTo(1);
-            table.specificType(Schema.ORDERS_TABLE_SCHEMA.FIELDS.TOTAL_AMOUNT, "numeric(8,2)").notNullable();
-            table.integer(Schema.ORDER_DISH_TABLE_SCHEMA.FIELDS.SERVED_BY, 36).notNullable().index()
+            table.specificType(Schema.ORDER_DISH_TABLE_SCHEMA.FIELDS.TOTAL_AMOUNT, "numeric(8,2)").notNullable();
+            table.string(Schema.ORDER_DISH_TABLE_SCHEMA.FIELDS.SERVED_BY, 36).index()
                 .references(Schema.USERS_TABLE_SCHEMA.FIELDS.ID)
                 .inTable(Schema.USERS_TABLE_SCHEMA.TABLE_NAME)
                 .onUpdate("CASCADE")
@@ -145,12 +145,12 @@ export const up = (knex: Knex, promise: typeof Bluebird) => {
 export const down = (knex: Knex, promise: typeof Bluebird) => {
     return promise.resolve()
     .then(() => {
+        return knex.schema.dropTable(Schema.ORDER_DISH_TABLE_SCHEMA.TABLE_NAME);
+    })
+    .then(() => {
         return knex.schema.dropTable(Schema.DISHES_TABLE_SCHEMA.TABLE_NAME);
     })
     .then(() => {
         return knex.schema.dropTable(Schema.ORDERS_TABLE_SCHEMA.TABLE_NAME);
-    })
-    .then(() => {
-        return knex.schema.dropTable(Schema.ORDER_DISH_TABLE_SCHEMA.TABLE_NAME);
     });
 };

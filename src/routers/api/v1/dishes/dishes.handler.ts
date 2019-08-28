@@ -25,6 +25,10 @@ export class DishHandler {
     public static detail(req: express.Request, res: express.Response, next: express.NextFunction): any {
         return DishRepository.findOne(req.params.id)
         .then(object => {
+            if (!object) {
+                res.status(HttpStatus.NO_CONTENT);
+                res.end();
+            }
             res.status(HttpStatus.OK);
             res.json(object);
         })

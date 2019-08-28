@@ -11,10 +11,11 @@ export class OrderService extends BaseService<OrderModel, typeof OrderRepository
         super(OrderRepository);
     }
 
-    public create(items: any[], notes?: string): Bluebird<OrderModel> {
+    public create(items: any[], userId: string, notes?: string): Bluebird<OrderModel> {
         return Bluebird.resolve(new OrderModel())
         .tap(order => {
             order.notes = notes;
+            order.userId = userId;
             items.forEach(item => {
                 let orderDish = new OrderDishModel();
                 orderDish.dishId = item.dishId;

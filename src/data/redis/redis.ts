@@ -36,6 +36,8 @@ declare module "redis" {
         sscanAsync(...args: any[]): Bluebird<any>;
         sunionAsync(...args: any[]): Bluebird<any>;
         sunionstoreAsync(...args: any[]): Bluebird<any>;
+        lpopAsync(...args: any[]): Bluebird<any>;
+        rpushAsync(...args: any[]): Bluebird<any>;
     }
 }
 
@@ -63,6 +65,7 @@ export class RedisConnection {
         this.opts = _.defaultsDeep(opts, defaultOpts) as RedisOpts;
         this.prefix = this.opts.prefix;
         this.db = this.opts.db;
+        this.client = Bluebird.promisifyAll(RedisLib.createClient(this.opts)) as RedisClient;
     }
 
     public initWithWaiting(): Bluebird<boolean> {
@@ -85,7 +88,6 @@ export class RedisConnection {
                         }
                     });
                 }).then(() => {
-                    this.client = Bluebird.promisifyAll(RedisLib.createClient(this.opts)) as RedisClient;
                     console.info("Redis connection is OK");
                     isComplete = true;
                 }).catch((err) => {

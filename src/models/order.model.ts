@@ -3,7 +3,7 @@ import * as Schema from "../data/sql/schema";
 import { BaseModel, UserModel } from "./";
 import { OrderDto, UserDto } from "../data/sql/models";
 import { OrderDishModel } from "./order_dish.model";
-import { DishRepository } from "../data";
+import { DishService } from "../interactors";
 
 export class OrderModel extends BaseModel {
     public userId: string;
@@ -66,9 +66,10 @@ export class OrderModel extends BaseModel {
         .tap(() => {
             this.totalAmount = 0;
             return Bluebird.each(this.items, item => {
-                return DishRepository.findOne(item.id)
+                return DishService.findOne(item.dishId)
                 .then(dish => {
-                    this.totalAmount += dish.price * item.quantity;
+                    item.totalAmount = dish.price * item.quantity;
+                    this.totalAmount += item.totalAmount;
                 });
             });
         });

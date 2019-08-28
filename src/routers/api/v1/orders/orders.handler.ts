@@ -8,11 +8,13 @@ import { SessionModel, ExceptionModel } from "../../../../models";
 
 export class OrderHandler {
     public static create(req: express.Request, res: express.Response, next: express.NextFunction): any {
+        let session: SessionModel = res.locals.session;
         return Bluebird.resolve()
         .then(() => {
             let items = req.body.items;
             let notes = req.body.notes;
-            return OrderService.create(items, notes);
+            let userId = session.userId;
+            return OrderService.create(items, userId, notes);
         })
         .then(object => {
             res.status(HttpStatus.OK);
@@ -25,6 +27,10 @@ export class OrderHandler {
         let session: SessionModel = res.locals.session;
         return OrderRepository.findOne(req.params.id, ["orderDishes.dish"])
         .then(object => {
+            if (!object) {
+                res.status(HttpStatus.NO_CONTENT);
+                return res.end();
+            }
             if (session.roleId === ROLE.USER && session.userId !== object.userId) {
                 throw new ExceptionModel(
                     ErrorCode.RESOURCE.INVALID_ACCESS.CODE,
