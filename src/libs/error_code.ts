@@ -20,7 +20,8 @@ export const ErrorCode = {
         INVALID_URL: new Code(1001, "invalid url."),
         NOT_FOUND: new Code(1002, "resource not found"),
         DUPLICATE_RESOURCE: new Code(1003, "duplicate resource"),
-        MISSING_REQUIRED_FIELDS: new Code(1004, "missing required fields")
+        MISSING_REQUIRED_FIELDS: new Code(1004, "missing required fields"),
+        CANNOT_DELETE_YOURSELF: new Code(1005, "cannot delete yourself")
     },
     AUTHENTICATION: {
         TYPE: "Authentication.",

@@ -1,9 +1,10 @@
 import * as Bluebird from "bluebird";
 import * as express from "express";
-import { HttpStatus } from "../../../../libs";
+import { HttpStatus, ErrorCode } from "../../../../libs";
 import { HEADERS } from "../../../../libs/constants";
 import { UserRepository } from "../../../../data";
 import { UserService, SessionService } from "../../../../interactors";
+import { SessionModel, ExceptionModel } from "../../../../models";
 
 export class UserHandler {
     public static create(req: express.Request, res: express.Response, next: express.NextFunction): any {
@@ -11,7 +12,8 @@ export class UserHandler {
         .then(() => {
             let userName = req.body.userName;
             let password = req.body.password;
-            return UserService.create(userName, password);
+            let roleId = req.body.roleId;
+            return UserService.create(userName, password, roleId);
         })
         .then(object => {
             res.status(HttpStatus.OK);
@@ -47,7 +49,20 @@ export class UserHandler {
     }
 
     public static delete(req: express.Request, res: express.Response, next: express.NextFunction): any {
-        return UserRepository.deleteLogic(req.params.id)
+        return Bluebird.resolve()
+        .then(() => {
+            let session: SessionModel = res.locals.session;
+            let userId = session.userId;
+            if (userId === req.params.id) {
+                throw new ExceptionModel(
+                    ErrorCode.RESOURCE.CANNOT_DELETE_YOURSELF.CODE,
+                    ErrorCode.RESOURCE.CANNOT_DELETE_YOURSELF.MESSAGE,
+                    false,
+                    HttpStatus.BAD_REQUEST
+                );
+            }
+            return UserRepository.deleteLogic(req.params.id)
+        })
         .then(() => {
             SessionService.revokeTokenByUser(req.params.id);
             res.status(HttpStatus.OK);

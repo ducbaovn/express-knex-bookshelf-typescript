@@ -24,7 +24,7 @@ export class JsonWebToken {
         this.password = opts.password != null && opts.password !== "" ? opts.password : this.DEFAULT_ISSUER;
         this.issuer = opts.issuer != null && opts.issuer !== "" ? opts.issuer : this.DEFAULT_ISSUER;
         this.defaultClient = opts.defaultClient != null && opts.defaultClient !== "" ? opts.defaultClient : this.DEFAULT_CLIENT;
-        this.defaultExpireTime = opts.defaultExpireTime != null && opts.defaultExpireTime !== "" ? opts.defaultExpireTime : this.DEFAULT_EXPIRE; // 1 year
+        this.defaultExpireTime = opts.defaultExpireTime != null && opts.defaultExpireTime !== "" ? opts.defaultExpireTime * 60 * 1000 : this.DEFAULT_EXPIRE;
     }
 
     public encode(payload: SessionModel, expire?: number, client = this.defaultClient): string {
