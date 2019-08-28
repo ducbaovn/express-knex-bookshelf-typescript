@@ -1,4 +1,5 @@
 import * as jwt from "jsonwebtoken";
+import { SessionModel } from "../models";
 
 export interface BearerObject {
     payload: any;
@@ -26,8 +27,9 @@ export class JsonWebToken {
         this.defaultExpireTime = opts.defaultExpireTime != null && opts.defaultExpireTime !== "" ? opts.defaultExpireTime : this.DEFAULT_EXPIRE; // 1 year
     }
 
-    public encode(payload: any, expire?: number, client = this.defaultClient): string {
+    public encode(payload: SessionModel, expire?: number, client = this.defaultClient): string {
         if (payload != null) {
+            delete payload.user.password;
             let current = Date.now();
             let expiredTime;
             if (expire != null && expire > 0) {

@@ -3,7 +3,7 @@ import * as express from "express";
 
 const router = express.Router();
 
-router.route("/")
+router.route("/login")
     .post(AuthHandler.login);
 
 router.route("/register")

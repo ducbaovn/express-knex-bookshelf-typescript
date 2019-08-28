@@ -23,6 +23,9 @@ export class RoleModel extends BaseModel {
 
     public static toDto(model: RoleModel): any {
         let dto = {};
+        if (model.id != null) {
+            dto[Schema.ROLES_TABLE_SCHEMA.FIELDS.ID] = model.id;
+        }
         if (model.isDeleted != null) {
             dto[Schema.ROLES_TABLE_SCHEMA.FIELDS.IS_DELETED] = model.isDeleted;
         }

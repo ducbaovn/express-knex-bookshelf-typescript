@@ -17,7 +17,6 @@ export class Application {
     constructor(opts?: any) {
         this.opts = opts !== null ? { ...opts } : {};
         this.app = express();
-        this.app.locals.title = "iCondo";
         this.app.enable("case sensitive routing");
         this.app.enable("trust proxy");
         this.app.disable("x-powered-by");

@@ -8,19 +8,8 @@ import { ROLE } from "../../../libs/constants";
 export const up = (knex: Knex, promise: typeof Bluebird) => {
     return promise.resolve()
     .then(() => {
-        return knex.schema.createTable(Schema.USERS_TABLE_SCHEMA.TABLE_NAME, (table => {
-            table.sring(Schema.USERS_TABLE_SCHEMA.FIELDS.ID, 36).notNullable().primary();
-            table.boolean(Schema.USERS_TABLE_SCHEMA.FIELDS.IS_DELETED).notNullable().defaultTo(0);
-            table.boolean(Schema.USERS_TABLE_SCHEMA.FIELDS.IS_ENABLE).notNullable().defaultTo(1);
-            table.dateTime(Schema.USERS_TABLE_SCHEMA.FIELDS.CREATED_DATE).defaultTo(knex.raw("current_timestamp"));
-            table.dateTime(Schema.USERS_TABLE_SCHEMA.FIELDS.UPDATED_DATE).defaultTo(knex.raw("current_timestamp"));
-            table.string(Schema.USERS_TABLE_SCHEMA.FIELDS.USER_NAME, 255).notNullable().unique();
-            table.string(Schema.USERS_TABLE_SCHEMA.FIELDS.PASSWORD, 255).notNullable();
-        }));
-    })
-    .then(() => {
         return knex.schema.createTable(Schema.ROLES_TABLE_SCHEMA.TABLE_NAME, (table => {
-            table.sring(Schema.ROLES_TABLE_SCHEMA.FIELDS.ID, 255).notNullable().primary();
+            table.string(Schema.ROLES_TABLE_SCHEMA.FIELDS.ID, 255).notNullable().primary();
             table.boolean(Schema.ROLES_TABLE_SCHEMA.FIELDS.IS_DELETED).notNullable().defaultTo(0);
             table.boolean(Schema.ROLES_TABLE_SCHEMA.FIELDS.IS_ENABLE).notNullable().defaultTo(1);
             table.dateTime(Schema.ROLES_TABLE_SCHEMA.FIELDS.CREATED_DATE).defaultTo(knex.raw("current_timestamp"));
@@ -29,8 +18,24 @@ export const up = (knex: Knex, promise: typeof Bluebird) => {
         }));
     })
     .then(() => {
+        return knex.schema.createTable(Schema.USERS_TABLE_SCHEMA.TABLE_NAME, (table => {
+            table.string(Schema.USERS_TABLE_SCHEMA.FIELDS.ID, 36).notNullable().primary();
+            table.boolean(Schema.USERS_TABLE_SCHEMA.FIELDS.IS_DELETED).notNullable().defaultTo(0);
+            table.boolean(Schema.USERS_TABLE_SCHEMA.FIELDS.IS_ENABLE).notNullable().defaultTo(1);
+            table.dateTime(Schema.USERS_TABLE_SCHEMA.FIELDS.CREATED_DATE).defaultTo(knex.raw("current_timestamp"));
+            table.dateTime(Schema.USERS_TABLE_SCHEMA.FIELDS.UPDATED_DATE).defaultTo(knex.raw("current_timestamp"));
+            table.string(Schema.USERS_TABLE_SCHEMA.FIELDS.USER_NAME, 255).notNullable().unique();
+            table.string(Schema.USERS_TABLE_SCHEMA.FIELDS.PASSWORD, 255).notNullable();
+            table.string(Schema.USERS_TABLE_SCHEMA.FIELDS.ROLE_ID, 255).notNullable().index()
+                .references(Schema.ROLES_TABLE_SCHEMA.FIELDS.ID)
+                .inTable(Schema.ROLES_TABLE_SCHEMA.TABLE_NAME)
+                .onUpdate("CASCADE")
+                .onDelete("CASCADE");
+        }));
+    })
+    .then(() => {
         return knex.schema.createTable(Schema.SESSIONS_TABLE_SCHEMA.TABLE_NAME, (table => {
-            table.sring(Schema.SESSIONS_TABLE_SCHEMA.FIELDS.ID, 36).notNullable().primary();
+            table.string(Schema.SESSIONS_TABLE_SCHEMA.FIELDS.ID, 36).notNullable().primary();
             table.boolean(Schema.SESSIONS_TABLE_SCHEMA.FIELDS.IS_DELETED).notNullable().defaultTo(0);
             table.boolean(Schema.SESSIONS_TABLE_SCHEMA.FIELDS.IS_ENABLE).notNullable().defaultTo(1);
             table.dateTime(Schema.SESSIONS_TABLE_SCHEMA.FIELDS.CREATED_DATE).defaultTo(knex.raw("current_timestamp"));
@@ -58,14 +63,17 @@ export const up = (knex: Knex, promise: typeof Bluebird) => {
         admin[Schema.USERS_TABLE_SCHEMA.FIELDS.ID] = UUID.v4();
         admin[Schema.USERS_TABLE_SCHEMA.FIELDS.USER_NAME] = "admin";
         admin[Schema.USERS_TABLE_SCHEMA.FIELDS.PASSWORD] = bcrypt.hashSync("123456", 10);
+        admin[Schema.USERS_TABLE_SCHEMA.FIELDS.ROLE_ID] = ROLE.ADMIN;
         let user = {};
         user[Schema.USERS_TABLE_SCHEMA.FIELDS.ID] = UUID.v4();
         user[Schema.USERS_TABLE_SCHEMA.FIELDS.USER_NAME] = "user1";
         user[Schema.USERS_TABLE_SCHEMA.FIELDS.PASSWORD] = bcrypt.hashSync("123456", 10);
+        user[Schema.USERS_TABLE_SCHEMA.FIELDS.ROLE_ID] = ROLE.USER;
         let chef = {};
         chef[Schema.USERS_TABLE_SCHEMA.FIELDS.ID] = UUID.v4();
         chef[Schema.USERS_TABLE_SCHEMA.FIELDS.USER_NAME] = "chef1";
         chef[Schema.USERS_TABLE_SCHEMA.FIELDS.PASSWORD] = bcrypt.hashSync("123456", 10);
+        chef[Schema.USERS_TABLE_SCHEMA.FIELDS.ROLE_ID] = ROLE.CHEF;
 
         return Bluebird.all([
             // Inserts seed entries
@@ -88,6 +96,6 @@ export const down = (knex: Knex, promise: typeof Bluebird) => {
         return knex.schema.dropTable(Schema.USERS_TABLE_SCHEMA.TABLE_NAME);
     })
     .then(() => {
-        return knex.schema.dropTable(Schema.USERS_TABLE_SCHEMA.TABLE_NAME);
+        return knex.schema.dropTable(Schema.ROLES_TABLE_SCHEMA.TABLE_NAME);
     });
 };

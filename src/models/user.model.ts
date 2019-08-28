@@ -30,6 +30,9 @@ export class UserModel extends BaseModel {
 
     public static toDto(model: UserModel): any {
         let dto = {};
+        if (model.id != null) {
+            dto[Schema.SESSIONS_TABLE_SCHEMA.FIELDS.ID] = model.id;
+        }
         if (model.isDeleted != null) {
             dto[Schema.USERS_TABLE_SCHEMA.FIELDS.IS_DELETED] = model.isDeleted;
         }
@@ -56,65 +59,5 @@ export class UserModel extends BaseModel {
                 HttpStatus.BAD_REQUEST
             );
         }
-    }
-
-    public static create(userName: string, password: string, roleId: string = ROLE.USER): Bluebird<UserModel> {
-        return Bluebird.resolve(new UserModel())
-        .tap(user => {
-            user.userName = userName;
-            user.password = password;
-            user.roleId = roleId;
-            user.validate();
-            return UserRepository.findByUserName(user.userName)
-            .then(object => {
-                if (object != null) {
-                    throw new ExceptionModel(
-                        ErrorCode.AUTHENTICATION.USER_EXIST.CODE,
-                        ErrorCode.AUTHENTICATION.USER_EXIST.MESSAGE,
-                        false,
-                        HttpStatus.BAD_REQUEST
-                    );
-                }
-            });
-        })
-        .tap(user => {
-            return Utils.hashPassword(user.password)
-            .then(hash => user.password = hash);
-        })
-        .then(user => UserRepository.insert(user));
-    }
-
-    public static update(id: string, userName?: string, password?: string, roleId?: string): Bluebird<UserModel> {
-        return Bluebird.resolve(new UserModel())
-        .tap(user => {
-            user.id = id;
-            if (user.password) {
-                user.password = password;
-            }
-            if (user.roleId) {
-                user.roleId = roleId;
-            }
-            if (user.userName) {
-                user.userName = userName;
-                return UserRepository.findByUserName(user.userName)
-                .then(object => {
-                    if (object != null) {
-                        throw new ExceptionModel(
-                            ErrorCode.AUTHENTICATION.USER_EXIST.CODE,
-                            ErrorCode.AUTHENTICATION.USER_EXIST.MESSAGE,
-                            false,
-                            HttpStatus.BAD_REQUEST
-                        );
-                    }
-                });
-            }
-        })
-        .tap(user => {
-            if (user.password) {
-                return Utils.hashPassword(user.password)
-                .then(hash => user.password = hash);
-            }
-        })
-        .tap(user => UserRepository.update(user));
     }
 }

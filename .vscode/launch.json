@@ -5,17 +5,20 @@
             "type": "node",
             "request": "launch",
             "protocol": "inspector",
-            "name": "Debug server.js",
+            "name": "Debug server.ts",
             "stopOnEntry": false,
-            "program": "${workspaceRoot}/src/server.js",
+            "program": "${workspaceRoot}/src/server.ts",
             "cwd": "${workspaceRoot}",
-            "sourceMaps": false,
+            "sourceMaps": true,
             "preLaunchTask": null,
             "runtimeExecutable": null,
             "runtimeArgs": [
                 "--nolazy"
             ],
             "console": "integratedTerminal",
+            "outFiles": [
+                "${workspaceRoot}/build/**/*.js"
+            ],
             "env": {
                 "NODE_ENV": "development",
                 "TZ" : "UTC"
@@ -28,7 +31,7 @@
             "protocol": "auto",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "stopOnEntry": false,
-            "args": ["test/**/*.ts", "--no-timeouts"],
+            "args": ["test/**/*.js", "--no-timeouts"],
             "cwd": "${workspaceRoot}",
             "runtimeExecutable": null,
             "env": {

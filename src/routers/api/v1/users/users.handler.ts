@@ -1,9 +1,9 @@
 import * as Bluebird from "bluebird";
 import * as express from "express";
 import { HttpStatus } from "../../../../libs";
-import { UserModel, SessionModel } from "../../../../models";
 import { HEADERS } from "../../../../libs/constants";
 import { UserRepository } from "../../../../data";
+import { UserService, SessionService } from "../../../../interactors";
 
 export class UserHandler {
     public static create(req: express.Request, res: express.Response, next: express.NextFunction): any {
@@ -11,7 +11,7 @@ export class UserHandler {
         .then(() => {
             let userName = req.body.userName;
             let password = req.body.password;
-            return UserModel.create(userName, password);
+            return UserService.create(userName, password);
         })
         .then(object => {
             res.status(HttpStatus.OK);
@@ -30,31 +30,30 @@ export class UserHandler {
     }
 
     public static update(req: express.Request, res: express.Response, next: express.NextFunction): any {
-        return UserModel.update(req.params.id)
+        let userName = req.body.userName || null;
+        let password = req.body.password || null;
+        let roleId = req.body.roleId || null;
+        return UserService.update(req.params.id, userName, password, roleId)
         .tap(user => {
-            if (user.password != null || user.roleId) {
-                return SessionModel.revokeTokenByUser(user.id);
+            if (user.password != null || user.roleId != null) {
+                return SessionService.revokeTokenByUser(user.id);
             }
         })
         .tap(user => {
             res.status(HttpStatus.OK);
             res.json(user);
         })
-        .catch(err => {
-            next(err);
-        });
+        .catch(next);
     }
 
     public static delete(req: express.Request, res: express.Response, next: express.NextFunction): any {
         return UserRepository.deleteLogic(req.params.id)
         .then(() => {
-            SessionModel.revokeTokenByUser(req.params.id);
+            SessionService.revokeTokenByUser(req.params.id);
             res.status(HttpStatus.OK);
             res.end();
         })
-        .catch(err => {
-            next(err);
-        });
+        .catch(next);
     }
 
     public static list(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -73,9 +72,7 @@ export class UserHandler {
             res.status(HttpStatus.OK);
             res.json(result.data);
         })
-        .catch(err => {
-            next(err);
-        });
+        .catch(next);
     }
 }
 

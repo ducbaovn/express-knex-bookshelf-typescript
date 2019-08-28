@@ -17,7 +17,7 @@ export const recover = (): express.ErrorRequestHandler => {
                 HttpStatus.BAD_GATEWAY
             );
         }
-        res.status(error.code);
+        res.status(error.httpStatus);
         res.json(error);
         if (!res.finished) {
             fallback(error, res);
