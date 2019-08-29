@@ -20,6 +20,7 @@ export const up = (knex: Knex, promise: typeof Bluebird) => {
                 .onDelete("CASCADE");
             table.text(Schema.ORDERS_TABLE_SCHEMA.FIELDS.NOTES);
             table.specificType(Schema.ORDERS_TABLE_SCHEMA.FIELDS.TOTAL_AMOUNT, "numeric(8,2)").notNullable();
+            table.integer(Schema.ORDERS_TABLE_SCHEMA.FIELDS.ESTIMATED_MINUTES).notNullable();
         }));
     })
     .then(() => {

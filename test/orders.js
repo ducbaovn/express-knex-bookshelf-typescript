@@ -16,7 +16,7 @@ describe("Orders", () => {
     let accessToken;
     let orderId;
     let userId;
-    let orderDishId;
+    let estimatedServedMinutes = 0;
     before(() => {
         // runs before all tests in this block
         return app
@@ -40,21 +40,25 @@ describe("Orders", () => {
                     {
                         dishId: res.body[0].id,
                         price: res.body[0].price,
+                        cookingMinutes: res.body[0].cookingMinutes,
                         quantity: 3
                     },
                     {
                         dishId: res.body[3].id,
                         price: res.body[3].price,
+                        cookingMinutes: res.body[3].cookingMinutes,
                         quantity: 1
                     },
                     {
                         dishId: res.body[1].id,
                         price: res.body[1].price,
+                        cookingMinutes: res.body[1].cookingMinutes,
                         quantity: 6
                     }
                 ];
                 items.forEach(item => {
                     totalAmount += item.price * item.quantity;
+                    estimatedServedMinutes += item.cookingMinutes * item.quantity;
                 });
             })
         });
@@ -73,6 +77,7 @@ describe("Orders", () => {
                 expect(res2.body).to.have.property("id");
                 expect(res2.body).to.have.property("userId", userId);
                 expect(res2.body).to.have.property("totalAmount", totalAmount);
+                expect(res2.body).to.have.property("estimatedServedMinutes", estimatedServedMinutes);
                 expect(res2.body).to.have.property("items");
                 expect(res2.body.items).to.be.an("array");
                 orderId = res2.body.id;
@@ -89,6 +94,7 @@ describe("Orders", () => {
                 expect(res2.body).to.have.property("id", orderId);
                 expect(res2.body).to.have.property("userId", userId);
                 expect(res2.body).to.have.property("totalAmount", totalAmount);
+                expect(res2.body).to.have.property("estimatedServedMinutes", estimatedServedMinutes);
                 expect(res2.body).to.have.property("items");
                 expect(res2.body.items).to.be.an("array");
             });

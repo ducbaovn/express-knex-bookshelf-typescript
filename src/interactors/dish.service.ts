@@ -1,9 +1,7 @@
 import * as Bluebird from "bluebird";
 import { BaseService } from "./base.service";
-import { DishModel, ExceptionModel } from "../models";
+import { DishModel } from "../models";
 import { DishRepository } from "../data";
-import { ErrorCode, HttpStatus, Utils } from "../libs";
-import { ROLE } from "../libs/constants";
 
 export class DishService extends BaseService<DishModel, typeof DishRepository > {
     constructor() {

@@ -3,12 +3,13 @@ import * as Schema from "../data/sql/schema";
 import { BaseModel, UserModel } from "./";
 import { OrderDto, UserDto } from "../data/sql/models";
 import { OrderDishModel } from "./order_dish.model";
-import { DishService } from "../interactors";
+import { DishService, OrderDishService } from "../interactors";
 
 export class OrderModel extends BaseModel {
     public userId: string;
     public totalAmount: number;
     public notes: string;
+    public estimatedServedMinutes: number;
 
     public user: UserModel;
     public items: OrderDishModel[] = [];
@@ -24,6 +25,7 @@ export class OrderModel extends BaseModel {
             model.updatedDate = BaseModel.getDate(dto.get(Schema.ORDERS_TABLE_SCHEMA.FIELDS.UPDATED_DATE));
             model.userId = BaseModel.getString(dto.get(Schema.ORDERS_TABLE_SCHEMA.FIELDS.USER_ID));
             model.totalAmount = BaseModel.getNumber(dto.get(Schema.ORDERS_TABLE_SCHEMA.FIELDS.TOTAL_AMOUNT));
+            model.estimatedServedMinutes = BaseModel.getNumber(dto.get(Schema.ORDERS_TABLE_SCHEMA.FIELDS.ESTIMATED_MINUTES));
             model.notes = BaseModel.getString(dto.get(Schema.ORDERS_TABLE_SCHEMA.FIELDS.NOTES));
 
             let userDto: UserDto = dto.related("user") as UserDto;
@@ -55,23 +57,30 @@ export class OrderModel extends BaseModel {
         if (model.totalAmount != null) {
             dto[Schema.ORDERS_TABLE_SCHEMA.FIELDS.TOTAL_AMOUNT] = model.totalAmount;
         }
+        if (model.estimatedServedMinutes != null) {
+            dto[Schema.ORDERS_TABLE_SCHEMA.FIELDS.ESTIMATED_MINUTES] = model.estimatedServedMinutes;
+        }
         if (model.notes != null) {
             dto[Schema.ORDERS_TABLE_SCHEMA.FIELDS.NOTES] = model.notes;
         }
         return dto;
     }
 
-    public getTotalAmount(): Bluebird<void> {
+    public setTotalAmountAndEstimatedMinutes(): Bluebird<void> {
         return Bluebird.resolve()
         .tap(() => {
             this.totalAmount = 0;
+            this.estimatedServedMinutes = 0;
             return Bluebird.each(this.items, item => {
                 return DishService.findOne(item.dishId)
-                .then(dish => {
-                    item.totalAmount = dish.price * item.quantity;
+                .then(object => {
+                    item.totalAmount = object.price * item.quantity;
                     this.totalAmount += item.totalAmount;
+                    this.estimatedServedMinutes += object.cookingMinutes * item.quantity;
                 });
-            });
+            })
+            .then(() => OrderDishService.getTotalQueueTime())
+            .then(queueMinutes => this.estimatedServedMinutes += queueMinutes);
         });
     }
 }

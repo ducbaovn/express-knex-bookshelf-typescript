@@ -1,9 +1,7 @@
 import * as Bluebird from "bluebird";
 import { BaseService } from "./base.service";
-import { OrderModel, ExceptionModel, OrderDishModel } from "../models";
+import { OrderModel, OrderDishModel } from "../models";
 import { OrderRepository } from "../data";
-import { ErrorCode, HttpStatus, Utils } from "../libs";
-import { ROLE } from "../libs/constants";
 import { OrderDishService } from ".";
 
 export class OrderService extends BaseService<OrderModel, typeof OrderRepository > {
@@ -23,7 +21,7 @@ export class OrderService extends BaseService<OrderModel, typeof OrderRepository
                 orderDish.validate();
                 order.items.push(orderDish);
             });
-            return order.getTotalAmount();
+            return order.setTotalAmountAndEstimatedMinutes();
         })
         .tap(order => OrderRepository.insert(order))
         .tap(order => {

@@ -47,7 +47,8 @@ export const ORDERS_TABLE_SCHEMA = {
         UPDATED_DATE: "updated_date",
         USER_ID: "user_id",
         NOTES: "notes",
-        TOTAL_AMOUNT: "total_amount"
+        TOTAL_AMOUNT: "total_amount",
+        ESTIMATED_MINUTES: "estimated_minutes"
     }
 };
 

@@ -4,6 +4,7 @@ import { BaseService } from "./base.service";
 import { OrderDishModel, OrderDishQueue, ExceptionModel } from "../models";
 import { OrderDishRepository } from "../data";
 import { ErrorCode, HttpStatus, Utils } from "../libs";
+import { ORDER_DISH_STATUS } from "../libs/constants";
 
 export class OrderDishService extends BaseService<OrderDishModel, typeof OrderDishRepository > {
     constructor() {
@@ -64,6 +65,20 @@ export class OrderDishService extends BaseService<OrderDishModel, typeof OrderDi
                 })
                 .then(() => item);
             });
+        });
+    }
+
+    public getTotalQueueTime(): Bluebird<number> {
+        let params = {
+            status: [ORDER_DISH_STATUS.NEW]
+        };
+        return OrderDishRepository.findByQuery(OrderDishRepository.query(params), ["dish"])
+        .then(items => {
+            let totalTime = 0;
+            items.forEach(item => {
+                totalTime += item.quantity * item.dish.cookingMinutes;
+            });
+            return totalTime;
         });
     }
 }
