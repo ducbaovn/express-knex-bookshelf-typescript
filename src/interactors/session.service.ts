@@ -80,6 +80,25 @@ export class SessionService extends BaseService<SessionModel, typeof SessionRepo
             }, deleteLogic);
         });
     }
+
+    public revokeToken(refreshToken: string): Bluebird<any> {
+        return Bluebird.resolve()
+        .then(() => {
+            if (!refreshToken) {
+                throw new ExceptionModel(
+                    ErrorCode.RESOURCE.MISSING_REQUIRED_FIELDS.CODE,
+                    ErrorCode.RESOURCE.MISSING_REQUIRED_FIELDS.MESSAGE,
+                    false,
+                    HttpStatus.BAD_REQUEST
+                );
+            }
+            let deleteLogic = {};
+            deleteLogic[Schema.SESSIONS_TABLE_SCHEMA.FIELDS.IS_DELETED] = true;
+            return SessionRepository.updateByQuery(q => {
+                q.where(Schema.SESSIONS_TABLE_SCHEMA.FIELDS.ID, refreshToken);
+            }, deleteLogic);
+        });
+    }
 }
 
 export default SessionService;

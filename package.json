@@ -4,8 +4,12 @@
   "description": "",
   "main": "build/server.js",
   "scripts": {
-    "test": "NODE_ENV=test mocha",
+    "build": "gulp build:staging",
+    "start": "node release/app/server.js",
+    "test": "NODE_ENV=test mocha ./test/main.js",
     "migrate": "gulp migrate:new --name",
+    "rollback": "./node_modules/.bin/knex migrate:rollback",
+    "latest": "./node_modules/.bin/knex migrate:latest",
     "clean": "gulp clean"
   },
   "repository": {

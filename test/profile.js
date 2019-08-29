@@ -55,7 +55,7 @@ describe("Profile", () => {
                 expect(res2.body).to.have.property("message", ErrorCode.AUTHENTICATION.USER_EXIST.MESSAGE);
             });
     });
-    it("Update Password, Refresh Token with old refresh token will be fail", () => {
+    it("Update Password -> Refresh Token with old refresh token will be fail", () => {
     return app
         .put("/api/v1/profile")
         .set(constants.HEADERS.AUTHORIZATION, "Bearer " + accessToken)

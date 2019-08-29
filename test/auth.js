@@ -147,4 +147,44 @@ describe("Authentication", () => {
                     });
             });
     });
+    it("Login, Logout -> Refresh Token with old token will be fail", () => {
+        return app
+            .post("/api/v1/auth/login")
+            .send({
+                userName: "user2",
+                password: "123456"
+            })
+            .then(res => {
+                expect(res.type).to.eql("application/json");
+                expect(res.status).to.eql(HttpStatus.OK);
+                expect(res.body).to.have.property("id");
+                expect(res.body).to.have.property("userId");
+                expect(res.body).to.have.property("roleId");
+                expect(res.body).to.have.property("token");
+                expect(res.body).to.have.property("user");
+                expect(res.body.user).to.not.have.property("password");
+                expect(res.body.user).to.have.property("userName", "user2");
+                expect(res.body.user).to.have.property("roleId", constants.ROLE.USER);
+                return app
+                    .post("/api/v1/auth/logout")
+                    .send({
+                        refreshToken: res.body.id,
+                    })
+                    .then(res2 => {
+                        expect(res2.type).to.eql("application/json");
+                        expect(res2.status).to.eql(HttpStatus.OK);
+                        return app
+                            .post("/api/v1/auth/refresh")
+                            .send({
+                                refreshToken: res.body.id,
+                            })
+                            .then(res3 => {
+                                expect(res3.type).to.eql("application/json");
+                                expect(res3.status).to.eql(HttpStatus.FORBIDDEN);
+                                expect(res3.body).to.have.property("code", ErrorCode.AUTHENTICATION.AUTHENTICATION_FAIL.CODE);
+                                expect(res3.body).to.have.property("message", ErrorCode.AUTHENTICATION.AUTHENTICATION_FAIL.MESSAGE);
+                            });
+                    });
+            });
+    });
 });

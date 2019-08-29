@@ -11,8 +11,7 @@ services:
             - POSTGRES_USER=pgadmin
             - POSTGRES_DB=food_ordering
         volumes:
-            # - ${PWD}/local/postgres:/var/lib/postgresql/data
-            - ${PWD}/docker/development/postgres/initdb.d:/docker-entrypoint-initdb.d
+            - ${PWD}/local/postgres:/var/lib/postgresql/data
     redis:
         image: redis:3.2.8-alpine
         command: redis-server --requirepass whatPass?

@@ -12,4 +12,7 @@ router.route("/register")
 router.route("/refresh")
     .post(AuthHandler.refreshToken);
 
+router.route("/logout")
+    .post(AuthHandler.logout);
+
 export default router;

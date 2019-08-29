@@ -37,6 +37,16 @@ export class AuthHandler {
         })
         .catch(next);
     }
+
+    public static logout(req: express.Request, res: express.Response, next: express.NextFunction): Bluebird<void> {
+        let refreshToken = req.body.refreshToken;
+        return SessionService.revokeToken(refreshToken)
+        .then(() => {
+            res.status(HttpStatus.OK);
+            res.end();
+        })
+        .catch(next);
+    }
 }
 
 export default AuthHandler;
