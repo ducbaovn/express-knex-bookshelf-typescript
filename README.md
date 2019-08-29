@@ -26,18 +26,108 @@ NO NEED to run the server before test
 You can add more test case to folder ./test
 ## Documentation
 ### Auth
+#### Session Model
+id: string - required - use as refreshToken
+userId: string - required
+roleId: string - required
+#### Auth API
 POST /api/v1/auth/register
-- Body: userName, password
+- Body: userName (required), password (required)
 - Response: Session Model with id is refrestToken, token is accessToken
 
 POST /api/v1/auth/login
-- Body: userName, password
+- Body: userName (required), password (required)
 - Response: Session Model with id is refrestToken, token is accessToken
 
 POST /api/v1/auth/refresh
-- Body: refreshToken
+- Body: refreshToken (required)
 - Response: Session Model with new accessToken
 
 POST /api/v1/auth/logout
-- Body: refreshToken
+- Body: refreshToken (required)
 - Response: no body with HTTP status 200
+
+### Profile
+GET /api/v1/profile
+- Headers: { "authorization": "Bearer " + accessToken }
+- Response: User Model with roleId (We have 3 roles: "admin", "user", "chef")
+
+PUT /api/v1/profile
+- Headers: { "authorization": "Bearer " + accessToken }
+- Body: id (required), userName, password
+- Response: User Model
+- Note: change password will be revoke refreshToken
+
+### Users (for admin only)
+GET /api/v1/users
+- Headers: { "authorization": "Bearer " + accessToken }
+- Query Params: key (for searching), roleId, offset, limit
+- Response: array of User Model
+
+POST /api/v1/users
+- Headers: { "authorization": "Bearer " + accessToken }
+- Body: userName (required), password (required), roleId (defaults is "user")
+- Response: User Model
+
+GET /api/v1/users/:userId
+- Headers: { "authorization": "Bearer " + accessToken }
+- Response: User Model
+
+PUT /api/v1/users/:userId
+- Headers: { "authorization": "Bearer " + accessToken }
+- Body: id (required), userName, password, roleId
+- Response: User Model
+- Note: change password or roleId will be revoke refreshToken of that user
+
+DELETE /api/v1/users/:userId
+- Headers: { "authorization": "Bearer " + accessToken }
+- Response: no body with HTTP status 200
+- Note: do not allow delete yourself
+
+### Dishes
+GET /api/v1/dishes (for all roles)
+- Headers: { "authorization": "Bearer " + accessToken }
+- Query Params: key (for searching), offset, limit
+- Response: array of Dish Model
+
+POST /api/v1/dishes (for admin only)
+- Headers: { "authorization": "Bearer " + accessToken }
+- Body: description (required), images (string array - required), price (required), cookingMinutes (required)
+- Response: Dish Model
+
+GET /api/v1/dishes/:dishId (for all roles)
+- Headers: { "authorization": "Bearer " + accessToken }
+- Response: Dish Model
+
+PUT /api/v1/dishes/:dishesId (for admin only)
+- Headers: { "authorization": "Bearer " + accessToken }
+- Body: id (required), description, images (string array), price, cookingMinutes
+- Response: Dish Model
+
+DELETE /api/v1/dishes/:dishesId
+- Headers: { "authorization": "Bearer " + accessToken }
+- Response: no body with HTTP status 200 (for admin only)
+
+### Order
+GET /api/v1/dishes (for all roles)
+- Headers: { "authorization": "Bearer " + accessToken }
+- Query Params: key (for searching), offset, limit
+- Response: array of Dish Model
+
+POST /api/v1/dishes (for admin only)
+- Headers: { "authorization": "Bearer " + accessToken }
+- Body: description (required), images (string array - required), price (required), cookingMinutes (required)
+- Response: Dish Model
+
+GET /api/v1/dishes/:dishId (for all roles)
+- Headers: { "authorization": "Bearer " + accessToken }
+- Response: Dish Model
+
+PUT /api/v1/dishes/:dishesId (for admin only)
+- Headers: { "authorization": "Bearer " + accessToken }
+- Body: id (required), description, images (string array), price, cookingMinutes
+- Response: Dish Model
+
+DELETE /api/v1/dishes/:dishesId
+- Headers: { "authorization": "Bearer " + accessToken }
+- Response: no body with HTTP status 200 (for admin only)
