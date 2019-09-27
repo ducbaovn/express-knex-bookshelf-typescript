@@ -1,5 +1,4 @@
 import * as Bluebird from "bluebird";
-import * as bcrypt from "bcrypt";
 
 export class Utils {
     public static PromiseLoop(condition: () => boolean, action: () => Bluebird<any>): Bluebird<any> {
@@ -19,18 +18,6 @@ export class Utils {
             return Bluebird.resolve(action()).then(loop);
         };
         return Bluebird.resolve().then(loop);
-    }
-    public static hashPassword(password: string): Bluebird<string> {
-        return bcrypt.hash(password, 10);
-    }
-    public static compareHash(password: string, hash: string): Bluebird<boolean> {
-        return Bluebird.resolve()
-        .then(() => {
-            if (password == null || hash == null) {
-                return false;
-            }
-            return bcrypt.compare(password, hash);
-        });
     }
 }
 

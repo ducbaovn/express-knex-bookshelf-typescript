@@ -20,18 +20,13 @@ export const ErrorCode = {
         INVALID_URL: new Code(1001, "invalid url."),
         NOT_FOUND: new Code(1002, "resource not found"),
         DUPLICATE_RESOURCE: new Code(1003, "duplicate resource"),
-        MISSING_REQUIRED_FIELDS: new Code(1004, "missing required fields"),
-        CANNOT_DELETE_YOURSELF: new Code(1005, "cannot delete yourself"),
-        INVALID_ACCESS: new Code(1006, "invalid access."),
-        ORDER_DISH_QUEUE_EMPTY: new Code(1007, "order dish queue is empty")
+        MISSING_REQUIRED_FIELDS: new Code(1004, "missing required fields")
     },
     AUTHENTICATION: {
         TYPE: "Authentication.",
         GENERIC: new Code(1100, "unknown authentication's error."),
         AUTHENTICATION_FAIL: new Code(1101, "authentication fails"),
-        INVALID_AUTHORIZATION_HEADER: new Code(1103, "invalid authorization header."),
-        TOKEN_EXPIRED: new Code(1102, "token expired"),
-        USER_EXIST: new Code(1103, "user name exists")
+        INVALID_AUTHORIZATION_HEADER: new Code(1103, "invalid authorization header.")
     },
     PRIVILEGE: {
         TYPE: "Privilege",
