@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv sh
+
+echo "Download setting from ${CONFIG_PATH}"
+mc cp media/${CONFIG_PATH} /app/configs/configuration.yaml

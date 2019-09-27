@@ -1,0 +1,12 @@
+#!/usr/bin/with-contenv sh
+if [ -n "$RSA_PRIVATE_KEY_PATH" ]; then
+    mc cp media/${RSA_PRIVATE_KEY_PATH} /app/configs/server.key.pem
+else
+    echo "RSA private key's PATH was not found. Skip"
+fi
+
+if [ -n "$RSA_PUBLIC_KEY_PATH" ]; then
+    mc cp media/${RSA_PUBLIC_KEY_PATH} /app/configs/server.pub
+else
+    echo "RSA public key's PATH was not found. Skip"
+fi

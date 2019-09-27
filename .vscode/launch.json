@@ -1,0 +1,42 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "protocol": "inspector",
+            "name": "Debug server.ts",
+            "stopOnEntry": false,
+            "program": "${workspaceRoot}/src/server.ts",
+            "cwd": "${workspaceRoot}",
+            "sourceMaps": true,
+            "preLaunchTask": null,
+            "runtimeExecutable": null,
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "console": "integratedTerminal",
+            "outFiles": [
+                "${workspaceRoot}/build/**/*.js"
+            ],
+            "env": {
+                "NODE_ENV": "development",
+                "TZ" : "UTC"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug mocha",
+            "protocol": "auto",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "stopOnEntry": false,
+            "args": ["test/**/*.js", "--no-timeouts"],
+            "cwd": "${workspaceRoot}",
+            "runtimeExecutable": null,
+            "env": {
+                "NODE_ENV": "test"
+            }
+        }
+    ]
+}

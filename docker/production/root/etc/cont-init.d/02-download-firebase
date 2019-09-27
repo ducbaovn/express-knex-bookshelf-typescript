@@ -1,0 +1,7 @@
+#!/usr/bin/with-contenv sh
+
+if [ -n "$FIREBASE_PATH" ]; then
+    mc cp media/${FIREBASE_PATH} /app/configs/firebase.json
+else
+    echo "Firebase key's PATH was not found. Skip"
+fi
